@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --inspect dist/src/index.js",
+    "dev": "nodemon src/index.ts",
     "watch": "tsc -w",
     "build": "tsc",
     "start": "node dist/src/index.js"

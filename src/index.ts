@@ -13,6 +13,10 @@ const jsonBodyMiddleware = express.json();
 
 app.use(jsonBodyMiddleware);
 
+app.get("/", (req, res) => {
+  res.send("hello");
+});
+
 async function start() {
   try {
     await mongoose.connect(process.env.MONGOPORT as string);
