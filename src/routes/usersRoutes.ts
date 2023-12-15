@@ -3,8 +3,9 @@ import { Model } from "mongoose";
 
 export const getUsersRoutes = (
   db: Model<{
-    name?: string | undefined;
-    email?: string | undefined;
+    name?: string;
+    email?: string;
+    password?: string;
   }>
 ) => {
   const router = express.Router();
@@ -12,66 +13,59 @@ export const getUsersRoutes = (
   router.get("/", async (req, res) => {
     try {
       const users = await db.find({});
-      res.json(users.map((u) => ({ id: u._id, name: u.name, email: u.email })));
+      return res.status(200).json(
+        users.map((u) => ({
+          id: u._id,
+          name: u.name,
+          email: u.email,
+          password: u.password,
+        }))
+      );
     } catch (e) {
       console.log(e);
-      res.sendStatus(404);
+      res.status(404).json({ message: "users not found" });
     }
   });
 
   router.get("/:id", async (req, res) => {
     try {
       const user = await db.findById(req.params.id);
-      res.json(user);
+      return res.status(200).json({
+        id: user?._id,
+        email: user?.email,
+        password: user?.password,
+        name: user?.name,
+      });
     } catch (e) {
       console.log(e);
-      res.sendStatus(404);
+      res.status(404).json({ message: "user not found" });
     }
   });
 
   router.delete("/:id", async (req, res) => {
     try {
       await db.findByIdAndDelete(req.params.id);
-      res.sendStatus(204);
+
+      return res.status(200).json({ message: "user delete" });
     } catch (e) {
       console.log(e);
-      res.sendStatus(404);
-    }
-  });
-
-  router.post("/", async (req, res) => {
-    if (!req.body.name || !req.body.email) {
-      res.sendStatus(400);
-      return;
-    }
-
-    try {
-      const user = new db({
-        name: req.body.name,
-        email: req.body.email,
-      });
-
-      await user.save();
-
-      res.sendStatus(201);
-    } catch (e) {
-      console.log(e);
-      res.sendStatus(400);
+      res.status(404).json({ message: "user not found" });
     }
   });
 
   router.put("/:id", async (req, res) => {
-    if (!req.body.name || !req.body.email) {
-      res.sendStatus(400);
+    if (!req.body.name) {
+      res.status(400).json({ message: "bad request" });
       return;
     }
 
     try {
       await db.findByIdAndUpdate(req.params.id, req.body);
-      res.sendStatus(204);
+
+      return res.status(200).json({ message: "user update" });
     } catch (e) {
       console.log(e);
-      res.sendStatus(404);
+      res.status(404).json({ message: "user not found" });
     }
   });
 
